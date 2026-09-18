@@ -1,0 +1,184 @@
+<%- include('../partials/header') %>
+  </head>
+
+  <body class="bg-gray-100 min-h-screen">
+    <%- include('../partials/toast') %>
+      <%- include('../partials/nav') %>
+
+        <main class="flex flex-col items-center justify-center">
+          <section class="max-w-7xl w-full mx-auto mt-5 mb-16 px-2">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+              My Bookings</h3>
+
+            <% if (bookings.length===0) { %>
+              <div class="bg-white shadow-lg rounded-xl p-10 text-center max-w-lg mx-auto">
+                <div class="text-7xl mb-4">📅</div>
+                <p class="text-gray-600 text-lg">You have no bookings yet.</p>
+              </div>
+              <% } else { %>
+
+                <div
+                  class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 mb-4 flex flex-col sm:flex-row gap-3">
+                  <div class="relative flex-1">
+                    <i
+                      class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input id="booking-search" type="text" placeholder="Search by property or host..."
+                      oninput="applyBookingFilters()"
+                      class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                  </div>
+                  <select id="booking-status-filter" onchange="applyBookingFilters()"
+                    class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                    <option value="all">All statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="arrived">Arrived</option>
+                    <option value="returned">Returned</option>
+                  </select>
+                </div>
+
+                <div class="space-y-4">
+                  <% bookings.forEach(booking=> { %>
+                    <div id="booking-<%= booking._id %>"
+                      class="booking-card bg-white border border-gray-200 rounded-xl shadow-sm p-5 flex flex-col sm:flex-row sm:items-center gap-4 transition"
+                      data-house="<%= booking.home.houseName %>"
+                      data-host="<%= booking.host ? booking.host.fname + ' ' + booking.host.lname : '' %>"
+                      data-status="<%= booking.status %>">
+
+                      <img src="<%= booking.home.image %>" class="w-full sm:w-32 h-24 object-cover rounded-lg"
+                        alt="<%= booking.home.houseName %>" />
+
+                      <div class="flex-1">
+                        <h5 class="text-lg font-semibold text-gray-800">
+                          <%= booking.home.houseName %>
+                        </h5>
+                        <p class="text-sm text-gray-500">
+                          <%= new Date(booking.checkIn).toLocaleDateString() %> → <%= new
+                              Date(booking.checkOut).toLocaleDateString() %>
+                              &middot; <%= booking.familyCount %> guest(s)
+                        </p>
+                        <% if (booking.host) { %>
+                          <p class="text-sm text-gray-600 mt-1">
+                            Host:
+                            <button type="button"
+                              class="contact-trigger font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                              data-host='<%- JSON.stringify({
+                  image: booking.host.profileImage || "/uploads/default-profile.png",
+                  name: `${booking.host.fname} ${booking.host.lname}`,
+                  email: booking.host.email,
+                  phone: booking.host.phone || ""
+                }).replace(/' /g, "&#39;" ) %>'>
+                              <%= booking.host.fname %>
+                                <%= booking.host.lname %>
+                            </button>
+                            &middot; <%= booking.host.email %>
+                              <% if (booking.host.phone) { %> &middot; <%= booking.host.phone %>
+                                  <% } %>
+                          </p>
+                          <% } %>
+                            <p class="text-sm font-semibold text-red-500 mt-1">Offered: Rs. <%= booking.offeredPrice %>
+                            </p>
+                      </div>
+
+                      <div class="flex flex-col items-end gap-2 shrink-0">
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full
+                    <%= booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                        booking.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                        booking.status === 'cancelled' ? 'bg-gray-200 text-gray-600' :
+                        'bg-yellow-100 text-yellow-700' %>">
+                          <%= booking.status %>
+                        </span>
+
+                        <% if (booking.status==='pending' || booking.status==='confirmed' ) { %>
+                          <form action="/bookings/cancel/<%= booking._id %>" method="POST">
+                            <button
+                              class="text-xs bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg">Cancel</button>
+                          </form>
+                          <% } %>
+                      </div>
+                    </div>
+                    <% }); %>
+
+                      <p id="no-booking-results"
+                        class="hidden bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">
+                        No bookings match your filters.
+                      </p>
+                </div>
+                <% } %>
+          </section>
+        </main>
+        <div id="contact-modal" class="fixed inset-0 bg-black/50 z-[200] hidden items-center justify-center px-4">
+          <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 relative">
+            <button type="button" onclick="closeContactModal()"
+              class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+              <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="flex flex-col items-center text-center">
+              <img id="modal-contact-image" src="" alt="Host"
+                class="w-24 h-24 rounded-full object-cover border-2 border-gray-200 mb-4" />
+              <h4 id="modal-contact-name" class="text-lg font-semibold text-gray-800"></h4>
+              <p id="modal-contact-email" class="text-sm text-gray-500 mt-1"></p>
+              <p id="modal-contact-phone" class="text-sm text-gray-500 mt-1"></p>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function openContactModal(image, name, email, phone) {
+            document.getElementById('modal-contact-image').src = image;
+            document.getElementById('modal-contact-name').textContent = name;
+            document.getElementById('modal-contact-email').textContent = email;
+            document.getElementById('modal-contact-phone').textContent = phone ? phone : 'No phone on file';
+            const modal = document.getElementById('contact-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+          }
+
+          function closeContactModal() {
+            const modal = document.getElementById('contact-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+          }
+          document.querySelectorAll('.contact-trigger').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const data = JSON.parse(btn.dataset.host);
+              openContactModal(data.image, data.name, data.email, data.phone);
+            });
+          });
+
+          function applyBookingFilters() {
+            const search = document.getElementById('booking-search').value.trim().toLowerCase();
+            const status = document.getElementById('booking-status-filter').value;
+            let anyVisible = false;
+
+            document.querySelectorAll('.booking-card').forEach(card => {
+              const house = (card.dataset.house || '').toLowerCase();
+              const host = (card.dataset.host || '').toLowerCase();
+              const cardStatus = card.dataset.status;
+              const matchesSearch = !search || house.includes(search) || host.includes(search);
+              const matchesStatus = status === 'all' || cardStatus === status;
+              const show = matchesSearch && matchesStatus;
+              card.classList.toggle('hidden', !show);
+              if (show) anyVisible = true;
+            });
+
+            document.getElementById('no-booking-results').classList.toggle('hidden', anyVisible);
+          }
+
+          (function () {
+            const bookingId = new URLSearchParams(window.location.search).get('bookingId');
+            if (!bookingId) return;
+            const el = document.getElementById('booking-' + bookingId);
+            if (!el) return;
+            el.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+            el.classList.add('ring-2', 'ring-indigo-400');
+            setTimeout(() => el.classList.remove('ring-2', 'ring-indigo-400'), 3000);
+          })();
+        </script>
+  </body>
+
+  </html>

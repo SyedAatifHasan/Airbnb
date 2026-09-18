@@ -1,0 +1,12 @@
+<% if (typeof errorMessages !== 'undefined' && errorMessages && errorMessages.length > 0) { %>
+<div class="rounded-lg border border-red-200 bg-red-50 p-4">
+  <div class="flex items-start gap-3">
+    <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i>
+    <ul class="text-sm text-red-700 space-y-1 list-disc list-inside">
+      <% errorMessages.forEach(error => { %>
+      <li><%= error %></li>
+      <% }); %>
+    </ul>
+  </div>
+</div>
+<% } %>

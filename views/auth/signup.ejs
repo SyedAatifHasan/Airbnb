@@ -1,0 +1,207 @@
+<%- include('../partials/header') %>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/css/intlTelInput.css" />
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/intlTelInput.min.js"></script>
+</head>
+
+<body class="bg-neutral-50 min-h-screen">
+  <%- include('../partials/nav') %>
+
+  <main class="flex justify-center items-center min-h-[calc(100vh-80px)] px-4 py-12">
+    <div class="w-full max-w-2xl">
+
+      <div class="mb-8 text-center">
+        <h2 class="text-3xl font-bold text-neutral-900">
+          Welcome
+        </h2>
+        <p class="text-neutral-500 mt-2">
+          Sign up to continue as new user
+        </p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 sm:p-10">
+
+        <form action="/signup" method="POST" id="signupForm" class="space-y-6">
+
+          <%- include('../partials/errors') %>
+
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+            <div>
+              <label for="fname" class="block text-sm font-medium text-neutral-700 mb-1.5">First Name</label>
+              <div class="relative">
+                <i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                <input id="fname" type="text" name="fname" value="<%= oldInput.fname ? oldInput.fname : '' %>" placeholder="First Name" class="w-full border border-neutral-300 rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition" autofocus>
+              </div>
+            </div>
+
+            <div>
+              <label for="mname" class="block text-sm font-medium text-neutral-700 mb-1.5">Middle Name</label>
+              <div class="relative">
+                <i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                <input id="mname" type="text" name="mname" value="<%= oldInput.mname ? oldInput.mname : '' %>" placeholder="Middle Name" class="w-full border border-neutral-300 rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition">
+              </div>
+            </div>
+
+            <div>
+              <label for="lname" class="block text-sm font-medium text-neutral-700 mb-1.5">Last Name</label>
+              <div class="relative">
+                <i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                <input id="lname" type="text" name="lname" value="<%= oldInput.lname ? oldInput.lname : '' %>" placeholder="Last Name" class="w-full border border-neutral-300 rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition">
+              </div>
+            </div>
+
+            <div>
+              <label for="email" class="block text-sm font-medium text-neutral-700 mb-1.5">Email</label>
+              <div class="relative">
+                <i class="fa-regular fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                <input id="email" type="email" name="email" value="<%= oldInput.email ? oldInput.email : '' %>" placeholder="Your Email" class="w-full border border-neutral-300 rounded-lg pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition">
+              </div>
+            </div>
+            <div>
+              <label for="phone" class="block text-sm font-medium text-neutral-700 mb-1.5">
+                Phone Number
+              </label>
+
+              <input id="phone" type="tel" name="phone" value="<%= oldInput.phone ? oldInput.phone : '' %>" placeholder="Phone Number" autocomplete="tel" maxlength="10" class="w-full border border-neutral-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition">
+            </div>
+
+            <div>
+              <label for="password" class="block text-sm font-medium text-neutral-700 mb-1.5">Password</label>
+              <div class="relative">
+                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                <input id="password" type="password" name="password" autocomplete="new-password" placeholder="Enter your password" class="w-full border border-neutral-300 rounded-lg pl-11 pr-11 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition">
+                <button type="button" id="togglePassword" tabindex="-1" class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600">
+                  <i class="fa-regular fa-eye" id="togglePasswordIcon"></i>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label for="cpassword" class="block text-sm font-medium text-neutral-700 mb-1.5">Confirm Password</label>
+              <div class="relative">
+                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+                <input id="cpassword" type="password" name="cpassword" autocomplete="new-password" placeholder="Confirm your password" class="w-full border border-neutral-300 rounded-lg pl-11 pr-11 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition">
+                <button type="button" id="toggleCPassword" tabindex="-1" class="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600">
+                  <i class="fa-regular fa-eye" id="toggleCPasswordIcon"></i>
+                </button>
+              </div>
+              <p id="passwordMismatch" class="hidden text-sm text-red-600 mt-1.5">Passwords do not match</p>
+            </div>
+          </div>
+
+          <fieldset>
+            <legend class="block text-sm font-medium text-neutral-700 mb-1.5">User Type</legend>
+            <div class="flex gap-6">
+              <label for="guest" class="flex items-center gap-2 cursor-pointer text-neutral-700">
+                <input id="guest" type="radio" name="usertype" value="guest" class="h-4 w-4 text-rose-500 border-neutral-300 focus:ring-rose-500" <%= oldInput.usertype === 'guest' ? 'checked' : '' %>>
+                Guest
+              </label>
+              <label for="host" class="flex items-center gap-2 cursor-pointer text-neutral-700">
+                <input id="host" type="radio" name="usertype" value="host" class="h-4 w-4 text-rose-500 border-neutral-300 focus:ring-rose-500" <%= oldInput.usertype === 'host' ? 'checked' : '' %>>
+                Host
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="flex items-center gap-2">
+            <input id="terms" type="checkbox" name="terms" class="h-4 w-4 text-rose-500 border-neutral-300 rounded focus:ring-rose-500">
+            <label for="terms" class="text-sm text-neutral-700">
+              I agree to the <a href="/terms" class="text-rose-500 hover:underline">Terms &amp; Conditions</a>
+            </label>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit" id="signupBtn" class="w-full bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600 active:bg-red-700 transition duration-200 flex items-center justify-center gap-2">
+              <span id="signupBtnText">Sign Up</span>
+            </button>
+          </div>
+
+        </form>
+
+        <p class="text-center text-sm text-neutral-500 mt-6">
+          Already have an account?
+          <a href="/login" class="text-rose-500 font-medium hover:underline">Log in</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const phoneInput = document.querySelector("#phone");
+    const iti = window.intlTelInput(phoneInput, {
+
+      initialCountry: "np",
+
+      separateDialCode: true,
+
+      nationalMode: false,
+
+      countrySearch: true,
+
+      strictMode: true,
+
+      loadUtils: () => import("https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js"),
+
+    });
+    function wireToggle(inputId, btnId, iconId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      const icon = document.getElementById(iconId);
+      btn.addEventListener('click', () => {
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+      });
+    }
+    wireToggle('password', 'togglePassword', 'togglePasswordIcon');
+    wireToggle('cpassword', 'toggleCPassword', 'toggleCPasswordIcon');
+
+    const password = document.getElementById('password');
+    const cpassword = document.getElementById('cpassword');
+    const mismatchMsg = document.getElementById('passwordMismatch');
+
+    function checkMatch() {
+      if (cpassword.value && cpassword.value !== password.value) {
+        mismatchMsg.classList.remove('hidden');
+        cpassword.setCustomValidity('Passwords do not match');
+      } else {
+        mismatchMsg.classList.add('hidden');
+        cpassword.setCustomValidity('');
+      }
+    }
+    password.addEventListener('input', checkMatch);
+    cpassword.addEventListener('input', checkMatch);
+
+    const form = document.getElementById('signupForm');
+    const signupBtn = document.getElementById('signupBtn');
+    const signupBtnText = document.getElementById('signupBtnText');
+
+    form.addEventListener('submit', (e) => {
+      checkMatch();
+
+      if (!form.checkValidity()) {
+        return; // let native validation messages show, don't touch the button
+      }
+
+      const rawPhone = phoneInput.value.trim();
+
+      if (rawPhone !== "") {
+        if (!iti.isValidNumber()) {
+          e.preventDefault();
+          phoneInput.classList.add("border-red-400", "ring-2", "ring-red-200");
+          phoneInput.focus();
+          return;
+        }
+        phoneInput.value = iti.getNumber(); 
+      }
+
+      signupBtn.disabled = true;
+      signupBtn.classList.add('opacity-75', 'cursor-not-allowed');
+      signupBtnText.textContent = 'Creating account...';
+    });
+  </script>
+
+</body>
+
+</html>

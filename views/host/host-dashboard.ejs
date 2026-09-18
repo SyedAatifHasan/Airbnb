@@ -1,0 +1,276 @@
+<%- include('../partials/header') %>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+  <%- include('../partials/toast') %>
+  <%- include('../partials/nav') %>
+
+  <main class="flex flex-col items-center justify-center">
+    <section class="max-w-7xl w-full mx-auto mt-5 mb-16 px-2">
+      <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+        Home Dashboard</h3>
+      <form method="GET" action="/host/dashboard" class="bg-white rounded-xl shadow p-4 mb-6 flex flex-wrap items-end gap-4">
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Month</label>
+          <select name="month" onchange="this.form.submit()" class="border rounded-lg px-3 py-2 text-sm">
+            <option value="">All Months</option>
+            <% filterOptions.monthOptions.forEach(m=> { %>
+            <option value="<%= m %>" <%=filters.month===m ? 'selected' : '' %>><%= m %>
+            </option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Home</label>
+          <select name="homeId" onchange="this.form.submit()" class="border rounded-lg px-3 py-2 text-sm">
+            <option value="">All Homes</option>
+            <% filterOptions.homeOptions.forEach(h=> { %>
+            <option value="<%= h.id %>" <%=filters.homeId===h.id ? 'selected' : '' %>><%= h.name %>
+            </option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Status</label>
+          <select name="status" onchange="this.form.submit()" class="border rounded-lg px-3 py-2 text-sm">
+            <option value="">All Statuses</option>
+            <% filterOptions.statusOptions.forEach(s=> { %>
+            <option value="<%= s %>" <%=filters.status===s ? 'selected' : '' %>><%= s %>
+            </option>
+            <% }) %>
+          </select>
+        </div>
+        <% if (filters.month || filters.homeId || filters.status) { %>
+        <a href="/host/dashboard" class="text-sm text-red-500 font-medium hover:underline pb-2">Clear
+          filters</a>
+        <% } %>
+      </form>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-8 gap-4 mb-8">
+        <div class="bg-white rounded-xl shadow p-4">
+          <p class="text-sm text-gray-500">Total Revenue</p>
+          <p class="text-2xl font-bold text-gray-800">$<%= stats.totalRevenue.toLocaleString() %>
+          </p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <p class="text-sm text-gray-500">Total Bookings</p>
+          <p class="text-2xl font-bold text-gray-800">
+            <%= stats.totalBookings %>
+          </p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <p class="text-sm text-gray-500">Avg. Booking Value</p>
+          <p class="text-2xl font-bold text-gray-800">$<%= stats.avgBookingValue.toLocaleString() %>
+          </p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <p class="text-sm text-gray-500">Revenue Trend</p>
+          <p class="text-2xl font-bold <%= stats.revenueGrowthPct >= 0 ? 'text-green-600' : 'text-red-500' %>">
+            <% if (stats.revenueGrowthPct===null) { %>—<% } else { %>
+            <%= stats.revenueGrowthPct>= 0 ? '▲' : '▼' %> <%= Math.abs(stats.revenueGrowthPct) %>%
+            <% } %>
+          </p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <p class="text-sm text-gray-500">Completed Stays</p>
+          <p class="text-2xl font-bold text-gray-800">
+            <%= stats.completedStays %>
+          </p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <p class="text-sm text-gray-500">Listed Homes</p>
+          <p class="text-2xl font-bold text-gray-800">
+            <%= stats.homesCount %>
+          </p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <p class="text-sm text-gray-500">Avg. Rating</p>
+          <p class="text-2xl font-bold text-gray-800">
+            <%= stats.avgRating ?? '—' %>
+          </p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <p class="text-sm text-gray-500">Repeat Guest Rate</p>
+          <p class="text-2xl font-bold text-gray-800">
+            <%= stats.repeatGuestRate %>%
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow p-4">
+          <h2 class="font-semibold text-gray-700 mb-3">Monthly Revenue Trend</h2>
+          <div class="h-64">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <h2 class="font-semibold text-gray-700 mb-3">Revenue by Location</h2>
+          <div class="h-64">
+            <canvas id="locationChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div class="bg-white rounded-xl shadow p-4">
+          <h2 class="font-semibold text-gray-700 mb-3">Booking Status Breakdown</h2>
+          <div class="h-64">
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <h2 class="font-semibold text-gray-700 mb-3">Top Performing Homes</h2>
+          <table class="w-full text-sm mt-2">
+            <thead>
+              <tr class="text-left text-gray-500 border-b">
+                <th class="py-2">Home</th>
+                <th class="py-2">Bookings</th>
+                <th class="py-2">Revenue</th>
+                <th class="py-2">Rating</th>
+                <th class="py-2">Cancel Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% topHomes.forEach(h=> { %>
+              <tr class="border-b last:border-0">
+                <td class="py-2">
+                  <%= h.name %>
+                </td>
+                <td class="py-2">
+                  <%= h.bookings %>
+                </td>
+                <td class="py-2">$<%= h.revenue.toLocaleString() %>
+                </td>
+                <td class="py-2">
+                  <%= h.avgRating ?? '—' %>
+                </td>
+                <td class="py-2 <%= h.cancelRate > 20 ? 'text-red-500 font-medium' : '' %>">
+                  <%= h.cancelRate %>%
+                </td>
+              </tr>
+              <% }) %>
+              <% if (topHomes.length===0) { %>
+              <tr>
+                <td colspan="3" class="py-4 text-center text-gray-400">No revenue yet.</td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div class="bg-white rounded-xl shadow p-4">
+          <h2 class="font-semibold text-gray-700 mb-1">Where to Expand</h2>
+          <p class="text-xs text-gray-400 mb-3">Bookings per listed home, by location — high bars mean demand
+            outpacing supply.</p>
+          <div class="h-64">
+            <canvas id="opportunityChart"></canvas>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <h2 class="font-semibold text-gray-700 mb-3">Needs Attention</h2>
+          <% if (underperformingHomes.length===0) { %>
+          <p class="text-sm text-gray-400">All your homes have at least one booking.</p>
+          <% } else { %>
+          <p class="text-sm text-gray-500 mb-2">These homes have zero bookings — consider updating
+            photos/pricing or promoting them:</p>
+          <ul class="text-sm list-disc list-inside space-y-1 text-gray-700">
+            <% underperformingHomes.forEach(name=> { %><li>
+              <%= name %>
+            </li>
+            <% }) %>
+          </ul>
+          <% } %>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <script id="dashboard-data" type="application/json">
+    <%- JSON.stringify({ chartData, locationOpportunity }) %>
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const dashboardData = JSON.parse(document.getElementById('dashboard-data').textContent);
+    const chartData = dashboardData.chartData;
+    const locationOpportunity = dashboardData.locationOpportunity;
+
+    new Chart(document.getElementById('revenueChart'), {
+      type: 'line',
+      data: {
+        labels: chartData.monthlyLabels,
+        datasets: [{
+          label: 'Revenue ($)',
+          data: chartData.monthlyValues,
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239,68,68,0.1)',
+          tension: 0.3,
+          fill: true,
+        }],
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      },
+    });
+
+    new Chart(document.getElementById('locationChart'), {
+      type: 'bar',
+      data: {
+        labels: chartData.locationLabels,
+        datasets: [{
+          label: 'Revenue ($)',
+          data: chartData.locationValues,
+          backgroundColor: '#3b82f6'
+        }],
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      },
+    });
+
+    new Chart(document.getElementById('opportunityChart'), {
+      type: 'bar',
+      data: {
+        labels: locationOpportunity.map(l => l.location),
+        datasets: [{
+          label: 'Bookings per home',
+          data: locationOpportunity.map(l => l.demandPerHome),
+          backgroundColor: '#ef4444'
+        }],
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      },
+    });
+
+    new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(chartData.statusBreakdown),
+        datasets: [{
+          data: Object.values(chartData.statusBreakdown),
+          backgroundColor: ['#ef4444', '#f87171', '#fca5a5', '#94a3b8', '#64748b', '#1f2937'],
+        }],
+      },
+    });
+  </script>
+</body>
+
+</html>

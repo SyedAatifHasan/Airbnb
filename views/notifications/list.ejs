@@ -1,0 +1,155 @@
+<%- include('../partials/header') %>
+  </head>
+
+  <body class="bg-gray-100 min-h-screen">
+    <%- include('../partials/toast') %>
+      <%- include('../partials/nav') %>
+
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"></script>
+
+        <main class="flex flex-col items-center justify-center">
+
+
+
+          <section class="max-w-7xl w-full mx-auto mt-5 mb-16 px-2" x-data="notificationList()">
+
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Notifications</h3>
+
+            <script id="notifications-data" type="application/json">
+          <%- JSON.stringify(notifications).replace(/</g, '\\u003c') %>
+        </script>
+
+            <% if (notifications.length===0) { %>
+              <div class="bg-white shadow-lg rounded-xl p-10 text-center">
+                <div class="text-6xl mb-4">🔔</div>
+                <p class="text-gray-600">You have no notifications yet.</p>
+              </div>
+              <% } else { %>
+
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 mb-4 space-y-3">
+
+                  <div class="relative">
+                    <i
+                      class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" x-model="search" placeholder="Search notifications..."
+                      class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent" />
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex bg-gray-100 rounded-lg p-1 text-sm">
+                      <button @click="status = 'all'"
+                        :class="status === 'all' ? 'bg-white shadow text-gray-800' : 'text-gray-500'"
+                        class="px-3 py-1 rounded-md transition">All</button>
+                      <button @click="status = 'unread'"
+                        :class="status === 'unread' ? 'bg-white shadow text-gray-800' : 'text-gray-500'"
+                        class="px-3 py-1 rounded-md transition">Unread</button>
+                      <button @click="status = 'read'"
+                        :class="status === 'read' ? 'bg-white shadow text-gray-800' : 'text-gray-500'"
+                        class="px-3 py-1 rounded-md transition">Read</button>
+                    </div>
+
+                    <select x-model="type"
+                      class="text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                      <option value="all">All types</option>
+                      <template x-for="t in types" :key="t">
+                        <option :value="t" x-text="t"></option>
+                      </template>
+                    </select>
+
+                    <select x-model="sort"
+                      class="text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-400 ml-auto">
+                      <option value="newest">Newest first</option>
+                      <option value="oldest">Oldest first</option>
+                    </select>
+
+                    <button x-show="search || status !== 'all' || type !== 'all'"
+                      @click="search=''; status='all'; type='all'"
+                      class="text-xs text-gray-400 hover:text-gray-600 underline">
+                      Clear filters
+                    </button>
+                  </div>
+                </div>
+
+                <p class="text-xs text-gray-400 mb-2 px-1">
+                  <span x-text="filtered.length"></span> of <span x-text="items.length"></span> notifications
+                </p>
+
+                <div class="space-y-3">
+                  <template x-for="n in filtered" :key="n._id || n.id || n.createdAt">
+                    <a :href="n.link || '#'"
+                      class="block bg-white border rounded-xl shadow-sm p-4 flex items-center gap-3 hover:shadow-md hover:border-gray-300 transition"
+                      :class="n.read ? 'border-gray-200' : 'border-indigo-200 bg-indigo-50/30'">
+
+                      <div class="relative shrink-0">
+                        <img x-show="n.image || (n.home && n.home.image)" :src="n.image || (n.home && n.home.image)"
+                          :alt="(n.home && n.home.houseName) || 'Property image'"
+                          class="w-14 h-14 rounded-lg object-cover border border-gray-100"
+                          @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='flex'" />
+                        <div x-show="!(n.image || (n.home && n.home.image))"
+                          class="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400">
+                          <i class="fa-solid fa-house text-lg"></i>
+                        </div>
+                        <span x-show="!n.read"
+                          class="absolute -top-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-white"></span>
+                      </div>
+
+                      <div class="flex-1 min-w-0">
+                        <p class="text-gray-800 truncate" x-text="n.message"></p>
+                        <p class="text-xs text-gray-400 mt-1" x-text="new Date(n.createdAt).toLocaleString()"></p>
+                      </div>
+
+                      <i class="fa-solid fa-chevron-right text-gray-300"></i>
+                    </a>
+                  </template>
+
+                  <div x-show="filtered.length === 0"
+                    class="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">
+                    No notifications match your filters.
+                  </div>
+                </div>
+                <% } %>
+          </section>
+        </main>
+
+        <script>
+          function notificationList() {
+            return {
+              items: [],
+              search: '',
+              status: 'all',
+              type: 'all',
+              sort: 'newest',
+              init() {
+                const el = document.getElementById('notifications-data');
+                try {
+                  this.items = el ? JSON.parse(el.textContent) : [];
+                } catch (e) {
+                  console.error('Failed to parse notifications JSON:', e);
+                  this.items = [];
+                }
+              },
+              get types() {
+                return [...new Set(this.items.map(n => n.type).filter(Boolean))];
+              },
+              get filtered() {
+                let list = this.items.filter(n => {
+                  const matchesSearch = !this.search ||
+                    (n.message || '').toLowerCase().includes(this.search.toLowerCase()) ||
+                    ((n.home && n.home.houseName) || '').toLowerCase().includes(this.search.toLowerCase());
+                  const matchesStatus = this.status === 'all' ||
+                    (this.status === 'unread' && !n.read) ||
+                    (this.status === 'read' && n.read);
+                  const matchesType = this.type === 'all' || n.type === this.type;
+                  return matchesSearch && matchesStatus && matchesType;
+                });
+                list.sort((a, b) => this.sort === 'newest'
+                  ? new Date(b.createdAt) - new Date(a.createdAt)
+                  : new Date(a.createdAt) - new Date(b.createdAt));
+                return list;
+              }
+            };
+          }
+        </script>
+  </body>
+
+  </html>

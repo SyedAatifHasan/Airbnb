@@ -1,0 +1,367 @@
+<%- include('../partials/header') %>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/css/intlTelInput.css" />
+
+  </head>
+
+  <body class="bg-gray-50 min-h-screen text-gray-800">
+
+    <%- include('../partials/toast') %>
+      <%- include('../partials/nav') %>
+
+        <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
+          <div class="mb-8">
+
+            <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">
+              My Profile
+            </h1>
+
+            <p class="text-gray-500 mt-2 text-center">
+              Manage your personal information and profile picture.
+            </p>
+          </div>
+
+          <% if (typeof errors !=='undefined' && errors.length) { %>
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-5 py-4">
+              <div class="flex items-center gap-2 font-medium mb-2">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>Please fix the following:</span>
+              </div>
+              <ul class="list-disc list-inside space-y-1 ml-1">
+                <% errors.forEach(err=> { %>
+                  <li>
+                    <%= err.msg %>
+                  </li>
+                  <% }) %>
+              </ul>
+            </div>
+            <% } %>
+
+              <form action="/profile" method="POST" enctype="multipart/form-data"
+                class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" novalidate>
+
+                <div class="bg-gradient-to-r from-red-50 to-white px-6 sm:px-10 py-8 border-b border-gray-100">
+
+                  <div class="flex flex-col sm:flex-row items-center sm:items-center gap-6">
+
+                    <div class="relative group">
+
+                      <img id="profilePreview" src="<%= user.profileImage || '/uploads/default-profile.png' %>"
+                        class="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-md"
+                        alt="Profile picture" />
+
+                      <label for="profileImage"
+                        class="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center cursor-pointer shadow-md transition"
+                        title="Change profile picture">
+                        <i class="fa-solid fa-camera text-sm"></i>
+                      </label>
+
+                      <input id="profileImage" type="file" name="profileImage" accept="image/jpeg,image/png,image/webp"
+                        class="hidden" />
+
+                    </div>
+
+
+                    <div class="text-center sm:text-left">
+
+                      <h2 class="text-xl font-semibold text-gray-900">
+                        <%= user.fname %>
+                          <%= user.lname %>
+                      </h2>
+
+                      <p class="text-gray-500 text-sm mt-1">
+                        <%= user.email %>
+                      </p>
+
+                      <p class="text-xs text-gray-400 mt-2">
+                        JPG, PNG or WEBP · Recommended 400×400px
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="px-6 sm:px-10 py-8">
+
+                  <div class="mb-6">
+
+                    <div class="flex items-center gap-3">
+
+                      <div class="w-9 h-9 rounded-lg bg-red-50 text-red-500 flex items-center justify-center">
+                        <i class="fa-regular fa-user"></i>
+                      </div>
+
+                      <div>
+                        <h3 class="font-semibold text-gray-900">
+                          Personal Information
+                        </h3>
+
+                        <p class="text-sm text-gray-500">
+                          Update your basic personal details.
+                        </p>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <div>
+
+                      <label for="fname" class="block text-sm font-medium text-gray-700 mb-2">
+                        First Name
+                      </label>
+
+                      <div class="relative">
+
+                        <i
+                          class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+
+                        <input id="fname" type="text" name="fname"
+                          value="<%= typeof oldInput !== 'undefined' ? oldInput.fname : user.fname %>" required
+                          autocomplete="given-name" placeholder="Enter your first name"
+                          class="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+
+                      </div>
+
+                    </div>
+
+                    <div>
+
+                      <label for="mname" class="block text-sm font-medium text-gray-700 mb-2">
+                        Middle Name
+                        <span class="text-gray-400 font-normal">(Optional)</span>
+                      </label>
+
+                      <div class="relative">
+
+                        <i
+                          class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+
+                        <input id="mname" type="text" name="mname"
+                          value="<%= typeof oldInput !== 'undefined' ? oldInput.mname : (user.mname || '') %>"
+                          autocomplete="additional-name" placeholder="Enter your middle name"
+                          class="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+
+                      </div>
+
+                    </div>
+
+                    <div>
+
+                      <label for="lname" class="block text-sm font-medium text-gray-700 mb-2">
+                        Last Name
+                      </label>
+
+                      <div class="relative">
+
+                        <i
+                          class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+
+                        <input id="lname" type="text" name="lname"
+                          value="<%= typeof oldInput !== 'undefined' ? oldInput.lname : user.lname %>" required
+                          autocomplete="family-name" placeholder="Enter your last name"
+                          class="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+
+                      </div>
+
+                    </div>
+
+                    <div>
+
+                      <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number
+                      </label>
+
+                      <div class="relative">
+
+                        <input id="phone" type="tel" name="phone"
+                          value="<%= typeof oldInput !== 'undefined' ? oldInput.phone : (user.phone || '') %>"
+                          autocomplete="tel" maxlength="10" placeholder="Enter phone number"
+                          class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+
+                      </div>
+
+                      <p class="text-xs text-gray-400 mt-2">
+                        Include your country code when using an international number.
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+                <div class="px-6 sm:px-10 py-8 border-t border-gray-100">
+
+                  <div class="mb-6">
+
+                    <div class="flex items-center gap-3">
+
+                      <div class="w-9 h-9 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center">
+                        <i class="fa-regular fa-envelope"></i>
+                      </div>
+
+                      <div>
+                        <h3 class="font-semibold text-gray-900">
+                          Account Information
+                        </h3>
+
+                        <p class="text-sm text-gray-500">
+                          Your registered email address.
+                        </p>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+
+                  <div>
+
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+
+                    <div class="relative">
+
+                      <i class="fa-regular fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+
+                      <input id="email" type="email" value="<%= user.email %>" disabled
+                        class="w-full border border-gray-200 bg-gray-100 text-gray-500 rounded-xl pl-11 pr-4 py-3 text-sm cursor-not-allowed" />
+
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-2 text-xs text-gray-400">
+
+                      <i class="fa-solid fa-lock"></i>
+
+                      <span>
+                        Email address cannot be changed from your profile.
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="px-6 sm:px-10 py-6 bg-gray-50 border-t border-gray-100">
+
+                  <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                    <p class="text-xs text-gray-400">
+                      Make sure your information is accurate before saving.
+                    </p>
+
+                    <div class="flex gap-3">
+
+
+                      <a href="/"
+                        class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 text-sm font-medium text-center transition">
+                        Cancel
+                      </a>
+
+                      <button type="submit"
+                        class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-sm font-semibold shadow-sm hover:shadow transition duration-200">
+                        <i class="fa-solid fa-check mr-2"></i>
+                        Save Changes
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </form>
+
+        </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/intlTelInput.min.js"></script>
+
+        <script>
+
+          const profileImageInput = document.getElementById("profileImage");
+          const profilePreview = document.getElementById("profilePreview");
+
+          profileImageInput.addEventListener("change", function () {
+
+            const file = this.files[0];
+
+            if (file) {
+
+              const reader = new FileReader();
+
+              reader.onload = function (event) {
+                profilePreview.src = event.target.result;
+              };
+
+              reader.readAsDataURL(file);
+
+            }
+
+          });
+
+
+          const phoneInput = document.querySelector("#phone");
+
+          const iti = window.intlTelInput(phoneInput, {
+
+            initialCountry: "np",
+
+            separateDialCode: true,
+
+            nationalMode: false,
+
+            countrySearch: true,
+
+            strictMode: true,
+
+            loadUtils: () => import("https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js"),
+
+          });
+
+          const profileForm = phoneInput.closest("form");
+
+          profileForm.addEventListener("submit", function (e) {
+            const raw = phoneInput.value.trim();
+
+            if (raw !== "") {
+
+              const formatted = iti.getNumber();
+
+              if (formatted) {
+                phoneInput.value = formatted;
+              }
+
+              if (phoneInput.value.trim() !== "" && !iti.isValidNumber()) {
+
+                e.preventDefault();
+
+                phoneInput.classList.add("border-red-400", "ring-2", "ring-red-200");
+
+                return;
+
+              }
+
+              if (phoneInput.value.trim() !== "") {
+
+                phoneInput.value = iti.getNumber();
+
+              }
+            }
+
+          });
+
+        </script>
+
+  </body>
+
+  </html>

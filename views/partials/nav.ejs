@@ -1,0 +1,202 @@
+
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+    <a href="/" class="shrink-0 text-2xl font-bold text-red-500">Airbnb</a>
+
+    <div class="hidden sm:flex items-center gap-4 lg:gap-8 min-w-0">
+      <% if (isLoggedIn) { %>
+        <% if (user && user.usertype === 'guest') { %>  
+          <a href="/homes"
+            class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Home' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+          >
+            <i class="fa-solid fa-house"></i>
+            <span class="hidden lg:inline">Home List</span>
+          </a>
+          <a href="/favourite-list"
+            class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Favourites' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+          >
+            <i class="<%= currentPage === 'Favourites' ? 'fa-solid' : 'fa-regular' %> fa-heart"></i>
+            <span class="hidden lg:inline">Favourites</span>
+          </a>
+          <a href="/bookings"
+            class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Bookings' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+          >
+            <i class="fa-solid fa-calendar-check"></i>
+            <span class="hidden lg:inline">Bookings</span>
+          </a>
+          <a href="/my-report"
+            class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Report' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+          >
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="hidden lg:inline">My Report</span>
+          </a>
+        <% } else { %>
+          <a href="/host/dashboard"
+              class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Dashboard' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+            >
+              <i class="fa-solid fa-chart-pie"></i>
+              <span class="hidden lg:inline">Dashboard</span>
+            </a>
+          <a href="/host/host-homes"
+            class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Host Homes' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+          >
+            <i class="fa-solid fa-house-chimney-user"></i>
+            <span class="hidden lg:inline">Host Homes</span>
+          </a>
+          <a href="/host/add-home"
+            class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Add Home' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+          >
+            <i class="fa-solid fa-circle-plus"></i>
+            <span class="hidden lg:inline">Add Home</span>
+          </a>
+          <a href="/host/bookings"
+            class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap <%= currentPage === 'Host Bookings' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500' %>">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <span class="hidden lg:inline">Bookings Report</span>
+          </a>
+
+          
+        <% } %>
+        <a href="/notifications" id="notif-bell"
+          class="relative flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap <%= currentPage === 'Notifications' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500' %>">
+          <i class="fa-solid fa-bell text-xl"></i>
+          <span class="hidden lg:inline">Notifications</span>
+          <% if (user && user.notifications && user.notifications.filter(n => !n.read).length > 0) { %>
+            <span class="absolute -top-1 -left-1 bg-red-500 text-white text-[10px] rounded-full px-1.5">
+              <%= user.notifications.filter(n => !n.read).length %>
+            </span>
+          <% } %>
+        </a>
+        <a href="/profile"
+          class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Profile' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+        >
+          <i class="fa-solid fa-user"></i>
+          <span class="hidden lg:inline">Profile</span>
+        </a>
+        <form action="/logout" method="POST" class="shrink-0">
+          <button
+            type="submit"
+            class="flex items-center gap-2 font-semibold pb-1 px-3 py-1.5 rounded-lg whitespace-nowrap transition duration-300 bg-red-500 text-white hover:bg-red-600"
+          >
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="hidden lg:inline">Logout</span>
+          </button>
+        </form>
+      <% } else { %>
+        <a href="/signup"
+          class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Signup' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+        >
+          <i class="fa-solid fa-user-plus"></i>
+          <span class="hidden lg:inline">Sign Up</span>
+        </a>
+        <a href="/login"
+          class="flex items-center gap-2 font-semibold pb-1 border-b-2 whitespace-nowrap transition duration-300 <%= currentPage === 'Login' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent hover:text-red-500 hover:border-red-300' %>"
+        >
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span class="hidden lg:inline">Login</span>
+        </a>
+      <% } %>
+    </div>
+
+    <% if (!isLoggedIn) { %>
+    <div class="flex sm:hidden items-center gap-4 shrink-0">
+      <a href="/login"
+        class="flex items-center gap-1.5 text-sm font-semibold pb-1 border-b-2 <%= currentPage === 'Login' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent' %>"
+      >
+        <i class="fa-solid fa-right-to-bracket"></i>
+        Login
+      </a>
+      <a href="/signup"
+        class="flex items-center gap-1.5 text-sm font-semibold pb-1 border-b-2 <%= currentPage === 'Signup' ? 'text-red-500 border-red-500' : 'text-gray-700 border-transparent' %>"
+      >
+        <i class="fa-solid fa-user-plus"></i>
+        Sign Up
+      </a>
+    </div>
+    <% } %>
+  </div>
+</nav>
+
+<% if (isLoggedIn) { %>
+<nav
+  class="sm:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-200"
+  style="padding-bottom: env(safe-area-inset-bottom);"
+>
+  <div class="grid grid-cols-7">
+    <% if (user && user.usertype === 'guest') { %>
+      <a href="/homes"
+        class="flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Home' ? 'text-red-500' : 'text-gray-500' %>">
+        <i class="fa-solid fa-house text-lg"></i>
+        <span class="text-[10px] font-medium">Home</span>
+      </a>
+
+      <a href="/favourite-list"
+        class="flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Favourites' ? 'text-red-500' : 'text-gray-500' %>">
+        <i class="<%= currentPage === 'Favourites' ? 'fa-solid' : 'fa-regular' %> fa-heart text-lg"></i>
+        <span class="text-[10px] font-medium">Favourite</span>
+      </a>
+
+      <a href="/bookings"
+        class="flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Bookings' ? 'text-red-500' : 'text-gray-500' %>">
+        <i class="fa-solid fa-calendar-check text-lg"></i>
+        <span class="text-[10px] font-medium">Bookings</span>
+      </a>
+      <a href="/my-report"
+        class="flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Report' ? 'text-red-500' : 'text-gray-500' %>">
+        <i class="fa-solid fa-chart-line text-lg"></i>
+        <span class="text-[10px] font-medium">Report</span>
+      </a>
+    <% } else { %>
+      <a href="/host/dashboard"
+        class="flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Dashboard' ? 'text-red-500' : 'text-gray-500' %>">
+        <i class="fa-solid fa-chart-pie text-lg"></i>
+        <span class="text-[10px] font-medium">Dashboard</span>
+      </a>
+      <a href="/host/host-homes"
+        class="flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Host Homes' ? 'text-red-500' : 'text-gray-500' %>">
+        <i class="fa-solid fa-house-chimney-user text-lg"></i>
+        <span class="text-[10px] font-medium">Host</span>
+      </a>
+
+      <a href="/host/add-home"
+        class="flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Add Home' ? 'text-red-500' : 'text-gray-500' %>">
+        <i class="fa-solid fa-circle-plus text-lg"></i>
+        <span class="text-[10px] font-medium">Add Home</span>
+      </a>
+
+      <a href="/host/bookings"
+        class="flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Host Bookings' ? 'text-red-500' : 'text-gray-500' %>">
+        <i class="fa-solid fa-clipboard-list text-lg"></i>
+        <span class="text-[10px] font-medium">Report</span>
+      </a>
+    <% } %>
+
+    <a href="/notifications"
+      class="relative flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Notifications' ? 'text-red-500' : 'text-gray-500' %>">
+      <i class="fa-solid fa-bell text-lg"></i>
+      <% if (user && user.notifications && user.notifications.filter(n => !n.read).length > 0) { %>
+        <span class="absolute top-1 right-1/4 bg-red-500 text-white text-[9px] rounded-full px-1 leading-tight">
+          <%= user.notifications.filter(n => !n.read).length %>
+        </span>
+      <% } %>
+      <span class="text-[10px] font-medium">Alerts</span>
+    </a>
+
+    <a href="/profile"
+      class="flex flex-col items-center justify-center gap-1 py-2.5 <%= currentPage === 'Profile' ? 'text-red-500' : 'text-gray-500' %>">
+      <i class="fa-solid fa-user text-lg"></i>
+      <span class="text-[10px] font-medium">Profile</span>
+    </a>
+
+    <form action="/logout" method="POST" class="contents">
+      <button
+        type="submit"
+        class="flex flex-col items-center justify-center gap-1 py-2.5 w-full bg-red-500 text-white"
+      >
+        <i class="fa-solid fa-right-from-bracket text-lg"></i>
+        <span class="text-[10px] font-medium">Logout</span>
+      </button>
+    </form>
+  </div>
+</nav>
+<% } %>

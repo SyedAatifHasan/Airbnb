@@ -1,0 +1,246 @@
+<%- include('../partials/header') %>
+  </head>
+
+  <body class="bg-gray-100 min-h-screen">
+    <%- include('../partials/toast') %>
+      <%- include('../partials/nav') %>
+
+        <main class="flex flex-col items-center justify-center">
+          <section class="max-w-7xl w-full mx-auto mt-5 mb-16 px-2">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+              My Travel Report</h3>
+            <form method="GET" action="/my-report"
+              class="bg-white rounded-xl shadow p-4 mb-6 flex flex-wrap items-end gap-4">
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">Month</label>
+                <select name="month" onchange="this.form.submit()" class="border rounded-lg px-3 py-2 text-sm">
+                  <option value="">All Months</option>
+                  <% filterOptions.monthOptions.forEach(m=> { %>
+                    <option value="<%= m %>" <%=filters.month===m ? 'selected' : '' %>><%= m %>
+                    </option>
+                    <% }) %>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">Home</label>
+                <select name="homeId" onchange="this.form.submit()" class="border rounded-lg px-3 py-2 text-sm">
+                  <option value="">All Homes</option>
+                  <% filterOptions.homeOptions.forEach(h=> { %>
+                    <option value="<%= h.id %>" <%=filters.homeId===h.id ? 'selected' : '' %>><%= h.name %>
+                    </option>
+                    <% }) %>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">Status</label>
+                <select name="status" onchange="this.form.submit()" class="border rounded-lg px-3 py-2 text-sm">
+                  <option value="">All Statuses</option>
+                  <% filterOptions.statusOptions.forEach(s=> { %>
+                    <option value="<%= s %>" <%=filters.status===s ? 'selected' : '' %>><%= s %>
+                    </option>
+                    <% }) %>
+                </select>
+              </div>
+              <% if (filters.month || filters.homeId || filters.status) { %>
+                <a href="/my-report" class="text-sm text-red-500 font-medium hover:underline pb-2">Clear filters</a>
+                <% } %>
+            </form>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+              <div class="bg-white rounded-xl shadow p-4">
+                <p class="text-sm text-gray-500">Total Bookings</p>
+                <p class="text-2xl font-bold text-gray-800">
+                  <%= stats.totalBookings %>
+                </p>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4">
+                <p class="text-sm text-gray-500">Completed Stays</p>
+                <p class="text-2xl font-bold text-gray-800">
+                  <%= stats.completedStays %>
+                </p>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4">
+                <p class="text-sm text-gray-500">Total Spent</p>
+                <p class="text-2xl font-bold text-gray-800">$<%= stats.totalSpent.toLocaleString() %>
+                </p>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4">
+                <p class="text-sm text-gray-500">Nights Stayed</p>
+                <p class="text-2xl font-bold text-gray-800">
+                  <%= stats.totalNights %>
+                </p>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4">
+                <p class="text-sm text-gray-500">Avg. Spend / Stay</p>
+                <p class="text-2xl font-bold text-gray-800">$<%= stats.avgSpendPerStay.toLocaleString() %>
+                </p>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4">
+                <p class="text-sm text-gray-500">Booking Style</p>
+                <p class="text-lg font-bold text-gray-800">
+                  <%= stats.bookingStyle %>
+                </p>
+                <% if (stats.avgLeadTimeDays !==null) { %>
+                  <p class="text-xs text-gray-400">~<%= stats.avgLeadTimeDays %> days ahead</p>
+                  <% } %>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div class="bg-white rounded-xl shadow p-4 flex items-center gap-3">
+                <i class="fa-solid fa-location-dot text-red-500 text-xl"></i>
+                <div>
+                  <p class="text-sm text-gray-500">Favourite Location</p>
+                  <p class="font-semibold text-gray-800">
+                    <%= stats.favouriteLocation %>
+                  </p>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4 flex items-center gap-3">
+                <i class="fa-solid fa-user-tie text-red-500 text-xl"></i>
+                <div>
+                  <p class="text-sm text-gray-500">Most-Booked Host</p>
+                  <p class="font-semibold text-gray-800">
+                    <%= stats.favouriteHost ? `${stats.favouriteHost.name} (${stats.favouriteHost.count} stays)` : '—'
+                      %>
+                  </p>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4 flex items-center gap-3">
+                <i class="fa-solid fa-tags text-red-500 text-xl"></i>
+                <div>
+                  <p class="text-sm text-gray-500">Preferred Price Tier</p>
+                  <p class="font-semibold text-gray-800">
+                    <%= stats.preferredTier %>
+                  </p>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4 flex items-center gap-3">
+                <i class="fa-solid fa-ban text-red-500 text-xl"></i>
+                <div>
+                  <p class="text-sm text-gray-500">Cancellation Rate</p>
+                  <p class="font-semibold <%= stats.cancellationRate > 20 ? 'text-red-500' : 'text-gray-800' %>">
+                    <%= stats.cancellationRate %>%
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              <div class="bg-white rounded-xl shadow p-4">
+                <h2 class="font-semibold text-gray-700 mb-3">Spending Trend</h2>
+                <div class="h-64"><canvas id="spendChart"></canvas></div>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4">
+                <h2 class="font-semibold text-gray-700 mb-3">Booking Status Breakdown</h2>
+                <div class="h-64"><canvas id="statusChart"></canvas></div>
+              </div>
+              <div class="bg-white rounded-xl shadow p-4">
+                <h2 class="font-semibold text-gray-700 mb-3">Bookings by Price Tier</h2>
+                <div class="h-64"><canvas id="tierChart"></canvas></div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow overflow-x-auto">
+              <h2 class="font-semibold text-gray-700 p-4 pb-0">Stay History</h2>
+              <table class="min-w-full text-sm">
+                <thead>
+                  <tr class="text-left text-gray-500 border-b">
+                    <th class="p-4">Home</th>
+                    <th class="p-4">Location</th>
+                    <th class="p-4">Host</th>
+                    <th class="p-4">Check-in</th>
+                    <th class="p-4">Check-out</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% bookings.forEach(b=> { %>
+                    <tr class="border-b last:border-0 hover:bg-gray-50">
+                      <td class="p-4">
+                        <%= b.home ? b.home.houseName : 'Home removed' %>
+                      </td>
+                      <td class="p-4">
+                        <%= b.home ? b.home.location : '—' %>
+                      </td>
+                      <td class="p-4">
+                        <%= b.host ? `${b.host.fname} ${b.host.lname}` : '—' %>
+                      </td>
+                      <td class="p-4">
+                        <%= b.checkIn.toDateString() %>
+                      </td>
+                      <td class="p-4">
+                        <%= b.checkOut.toDateString() %>
+                      </td>
+                      <td class="p-4">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium
+                <%= b.status === 'returned' ? 'bg-green-100 text-green-700' :
+                    (b.status === 'cancelled' || b.status === 'rejected') ? 'bg-red-100 text-red-700' :
+                    'bg-yellow-100 text-yellow-700' %>">
+                          <%= b.status %>
+                        </span>
+                      </td>
+                      <td class="p-4">$<%= b.offeredPrice %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                      <% if (bookings.length===0) { %>
+                        <tr>
+                          <td colspan="7" class="p-6 text-center text-gray-400">No bookings yet.</td>
+                        </tr>
+                        <% } %>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+
+        <script id="report-data" type="application/json">
+          <%- JSON.stringify(chartData) %>
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          const chartData = JSON.parse(document.getElementById('report-data').textContent);
+
+          new Chart(document.getElementById('spendChart'), {
+            type: 'line',
+            data: {
+              labels: chartData.monthlyLabels,
+              datasets: [{
+                label: 'Spend ($)',
+                data: chartData.monthlyValues,
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239,68,68,0.1)',
+                tension: 0.3,
+                fill: true,
+              }],
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false } } },
+          });
+
+          new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+              labels: Object.keys(chartData.statusBreakdown),
+              datasets: [{
+                data: Object.values(chartData.statusBreakdown),
+                backgroundColor: ['#ef4444', '#f87171', '#fca5a5', '#94a3b8', '#64748b', '#1f2937'],
+              }],
+            },
+            options: { maintainAspectRatio: false },
+          });
+
+          new Chart(document.getElementById('tierChart'), {
+            type: 'bar',
+            data: {
+              labels: Object.keys(chartData.tierCounts),
+              datasets: [{ label: 'Bookings', data: Object.values(chartData.tierCounts), backgroundColor: '#3b82f6' }],
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false } } },
+          });
+        </script>
+
+  </body>
+
+  </html>

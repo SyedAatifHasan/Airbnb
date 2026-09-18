@@ -1,0 +1,191 @@
+<%- include('../partials/header') %>
+  </head>
+
+  <body class="bg-gray-100 min-h-screen">
+    <%- include('../partials/toast') %>
+    <%- include('../partials/nav') %>
+
+    <main class="flex flex-col items-center justify-center">
+      <section class="max-w-7xl w-full mx-auto mt-5 mb-16 px-2">
+        <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Welcome to Airbnb!
+        </h3>
+
+        <% if (registeredHome.length === 0) { %>
+          <p class="text-center text-gray-500">
+            No homes registered yet.
+          </p>
+        <% } else { %>
+
+          <!-- Search / filter / sort bar -->
+          <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 mb-6 flex flex-col md:flex-row gap-3 max-w-5xl mx-auto">
+            <div class="relative flex-1">
+              <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input
+                id="home-search"
+                type="text"
+                placeholder="Search by location or description..."
+                oninput="applyHomeFilters()"
+                class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300"
+              />
+            </div>
+
+            <select id="home-status-filter" onchange="applyHomeFilters()"
+              class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300">
+              <option value="all">All homes</option>
+              <option value="vacant">Available now</option>
+              <option value="occupied">Currently occupied</option>
+            </select>
+
+            <select id="home-sort" onchange="applyHomeFilters()"
+              class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300">
+              <option value="rating-desc">Highest rated</option>
+              <option value="price-asc">Price (low to high)</option>
+              <option value="price-desc">Price (high to low)</option>
+            </select>
+          </div>
+
+          <p id="home-results-count" class="text-xs text-gray-400 mb-3 text-center"></p>
+
+          <div id="home-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% registeredHome.forEach(home => { %>
+              <div class="home-card w-full max-w-sm bg-white p-6 border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition duration-300"
+                data-location="<%= home.location %>"
+                data-description="<%= home.description %>"
+                data-price="<%= home.price %>"
+                data-rating="<%= home.ratting %>"
+                data-occupied="<%= home.occupied ? '1' : '0' %>">
+
+                <a href="/homes/<%= home._id %>">
+                  <img
+                    class="rounded-lg mb-3 w-full h-48 object-cover"
+                    src="<%= home.image %>"
+                    alt="<%= home.houseName %>"
+                  />
+                </a>
+
+                <!-- Status badges -->
+                <div class="flex flex-wrap gap-2 mb-2">
+                  <% if (home.occupied) { %>
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-blue-700 bg-blue-50 rounded-full px-2.5 py-1">
+                      <i class="fa-solid fa-house-user"></i> Currently occupied
+                    </span>
+                  <% } else { %>
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 rounded-full px-2.5 py-1">
+                      <i class="fa-solid fa-circle-check"></i> Available
+                    </span>
+                  <% } %>
+                  <% if (home.guestLovedThisHome) { %>
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-50 rounded-full px-2.5 py-1">
+                      <i class="fa-solid fa-heart"></i> You loved this stay
+                    </span>
+                  <% } %>
+                  <% if (home.hostRatedYouWell) { %>
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-purple-700 bg-purple-50 rounded-full px-2.5 py-1">
+                      <i class="fa-solid fa-star"></i> This host rated you highly
+                    </span>
+                  <% } %>
+                </div>
+
+                <a href="/homes/<%= home._id %>">
+                  <div class="flex items-start justify-between gap-2 mb-1">
+                    <h5 class="text-xl text-gray-800 font-semibold tracking-tight hover:text-red-500 transition duration-200">
+                      <%= home.houseName %>
+                    </h5>
+                    <span class="flex items-center shrink-0 text-sm font-medium text-gray-700 bg-yellow-100 px-2 py-0.5 rounded-full">
+                      <svg class="w-4 h-4 text-yellow-500 me-1" fill="currentColor" viewBox="0 0 24 24"><path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z"/></svg>
+                      <%= home.ratting %>
+                    </span>
+                    <span class="text-xs text-gray-400 ml-2">
+                      <%= home.totalBookings %> bookings
+                    </span>
+                  </div>
+                </a>
+                <p class="text-sm text-gray-500 mb-2 flex items-center">
+                  <svg class="w-4 h-4 me-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <%= home.location %>
+                </p>
+                <p class="text-gray-600 text-sm mb-4">
+                  <%= home.description %>
+                </p>
+                <div class="flex items-center justify-between mt-4">
+                  <span class="text font-extrabold text-red-500">
+                    Rs.<%= home.price %>/Night
+                  </span>
+                  <% if (user && user.usertype === 'guest') { %>
+                    <% if (!home.occupied) { %>
+                      <a href="/homes/<%= home._id %>"
+                          class="inline-flex items-center text-white bg-red-500 hover:bg-red-600 border border-transparent focus:ring-4 focus:ring-red-300 shadow-sm font-medium leading-5 rounded-lg text-sm px-3 py-2 focus:outline-none transition duration-300">
+                        <svg class="w-4 h-4 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"/></svg>
+                        Book Now
+                      </a>
+                    <% } else { %>
+                      <span class="inline-flex items-center text-gray-400 bg-gray-100 font-medium leading-5 rounded-lg text-sm px-3 py-2 cursor-not-allowed">
+                        Unavailable
+                      </span>
+                    <% } %>
+                  <% } else { %>
+                    <a href="/homes/<%= home._id %>"
+                        class="inline-flex items-center text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-300 font-medium leading-5 rounded-lg text-sm px-3 py-2 transition duration-300">
+                      View Details
+                    </a>
+                  <% } %>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+
+          <p id="no-home-results" class="hidden bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm mt-4 max-w-lg mx-auto">
+            No homes match your filters.
+          </p>
+        <% } %>
+      </section>
+    </main>
+
+    <script>
+      function applyHomeFilters() {
+        const search = document.getElementById('home-search').value.trim().toLowerCase();
+        const status = document.getElementById('home-status-filter').value;
+        const sort = document.getElementById('home-sort').value;
+
+        const grid = document.getElementById('home-grid');
+        const cards = Array.from(grid.querySelectorAll('.home-card'));
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          const loc = (card.dataset.location || '').toLowerCase();
+          const desc = (card.dataset.description || '').toLowerCase();
+          const occupied = card.dataset.occupied === '1';
+
+          const matchesSearch = !search || loc.includes(search) || desc.includes(search);
+          const matchesStatus = status === 'all' ||
+            (status === 'occupied' && occupied) ||
+            (status === 'vacant' && !occupied);
+
+          const show = matchesSearch && matchesStatus;
+          card.classList.toggle('hidden', !show);
+          if (show) visibleCount++;
+        });
+
+        cards.sort((a, b) => {
+          switch (sort) {
+            case 'price-asc': return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+            case 'price-desc': return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+            case 'rating-desc':
+            default: return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+          }
+        });
+        cards.forEach(card => grid.appendChild(card));
+
+        document.getElementById('no-home-results').classList.toggle('hidden', visibleCount > 0);
+        document.getElementById('home-results-count').textContent = `${visibleCount} of ${cards.length} homes`;
+      }
+      document.addEventListener('DOMContentLoaded', applyHomeFilters);
+    </script>
+  </body>
+</html>
